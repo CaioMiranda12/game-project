@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { distribuirClasses } from './utils/distribuirClasses'
+import LogoUndercover from './assets/detective.png'
 
 // const palavrasSecretas = ["gato", "cachorro", "carro", "praia"];
 
@@ -68,6 +69,8 @@ export default function App() {
   const [totalUndercover, setTotalUndercover] = useState(0);
   const [totalMrWhite, setTotalMrWhite] = useState(0);
 
+  const [nomeDigitado, setNomeDigitado] = useState("");
+
   useEffect(() => {
     const sala = localStorage.getItem("sala");
     const jogs = localStorage.getItem("jogadores");
@@ -86,13 +89,11 @@ export default function App() {
 
   useEffect(() => {
     const { numCivis, numUndercover, numMrWhite } = distribuirClasses(numeroJogadores);
-    console.log({ numCivis, numUndercover, numMrWhite });
 
     setTotalCivis(numCivis);
     setTotalUndercover(numUndercover)
     setTotalMrWhite(numMrWhite)
   }, [numeroJogadores])
-
 
 
   const gerarPalavras = () => {
@@ -123,6 +124,7 @@ export default function App() {
     novos[jogadorAtual].nome = nome;
     setJogadores(novos);
     setJogadorAtual(jogadorAtual + 1);
+    setNomeDigitado("")
     if (jogadorAtual + 1 >= jogadores.length) {
       setJogadorAtual(0);
       setFase("mostrarCarta");
@@ -209,29 +211,58 @@ export default function App() {
 
   if (fase === "config") {
     return (
-      <div className="p-4">
-        <h1>Configurar Sala</h1>
-        <input
-          type="number"
-          value={numeroJogadores}
-          onChange={(e) => setNumeroJogadores(parseInt(e.target.value))}
-        />
-        <button onClick={iniciarJogo}>Iniciar</button>
+      <div className="p-4 flex justify-center items-center h-screen bg-[#121212]">
+        <div className="flex flex-col gap-4">
+          <img
+            src={LogoUndercover}
+            alt="imagem da logo do undercover"
+            className="w-[400px] h-[300px]"
+          />
 
-        <ul>
-          <li>Civis: {totalCivis}</li>
-          <li>Undercovers: {totalUndercover}</li>
-          <li>MrWhites: {totalMrWhite}</li>
-        </ul>
+          <h1 className="text-4xl font-bold text-white">Configurar Sala</h1>
+          <h3 className="text-white">Inserir número de jogadores:</h3>
+          <div className="flex justify-between">
+            <input
+              type="number"
+              value={numeroJogadores}
+              onChange={(e) => setNumeroJogadores(parseInt(e.target.value))}
+              className="border-white border-2 px-2 w-32 text-white"
+            />
+            <button
+              onClick={iniciarJogo}
+              className="bg-blue-400 text-white font-bold text-xl px-3 py-2 rounded-xl w-full ml-4 hover:bg-blue-500 hover:cursor-pointer"
+            >
+              Iniciar
+            </button>
+          </div>
+
+          <ul className="text-white">
+            <li>Civis: <strong>{totalCivis}</strong></li>
+            <li>Undercovers: <strong>{totalUndercover}</strong></li>
+            <li>MrWhites: <strong>{totalMrWhite}</strong></li>
+          </ul>
+        </div>
       </div>
     );
   }
 
   if (fase === "inserirNomes") {
     return (
-      <div className="p-4">
-        <h2>Jogador {jogadorAtual + 1}, digite seu nome:</h2>
-        <input type="text" onBlur={(e) => definirNome(e.target.value)} />
+      <div className="p-4 bg-[#121212] h-screen flex justify-center items-center">
+        <div className="flex flex-col">efefe
+          <h2 className="text-white mb-4 text-2xl">Jogador {jogadorAtual + 1}, digite seu nome:</h2>
+          <input
+            type="text"
+            value={nomeDigitado}
+            onChange={(e) => setNomeDigitado(e.target.value)}
+            className="border-2 border-white text-white px-3 h-12 text-xl rounded-full"
+          />
+
+          <button
+            className="bg-blue-400 py-4 text-xl font-bold text-white mt-8 rounded-full hover:cursor-pointer hover:bg-blue-500"
+            onClick={() => definirNome(nomeDigitado)}
+          >Confirmar</button>
+        </div>
       </div>
     );
   }
@@ -241,9 +272,16 @@ export default function App() {
 
     if (!mostrandoCarta) {
       return (
-        <div className="p-4">
-          <h2>{jogador.nome}, clique abaixo para ver sua carta:</h2>
-          <button onClick={() => setMostrandoCarta(true)}>Mostrar Carta</button>
+        <div className="p-4 h-screen flex justify-center items-center bg-[#121212]">
+          <div>
+            <h2 className="mb-4 text-white text-2xl"><span className="text-4xl font-bold">{jogador.nome} </span> <br /> clique abaixo para ver sua carta:</h2>
+            <button
+              onClick={() => setMostrandoCarta(true)}
+              className="bg-blue-400 mt-4 py-4 w-full text-xl font-bold text-white rounded-full hover:cursor-pointer hover:bg-blue-500"
+            >
+              Mostrar Carta
+            </button>
+          </div>
         </div>
       );
     }
@@ -255,35 +293,38 @@ export default function App() {
         : "Você é Mr. White (sem palavra)";
 
     return (
-      <div className="p-4">
-        <h2>{jogador.nome}, sua carta é:</h2>
-        <p>{conteudo}</p>
-        <button
-          onClick={() => {
-            setMostrandoCarta(false);
-            if (jogadorAtual + 1 < jogadores.length) {
-              setJogadorAtual(jogadorAtual + 1);
-            } else {
-              const jogadoresAtivos = jogadores.filter(j => !j.eliminado);
-              const civisOuUndercover = jogadoresAtivos.filter(j => j.classe !== "Mr. White");
+      <div className="p-4 h-screen flex justify-center items-center bg-[#121212]">
+        <div className="w-8/12 text-center">
+          <h2 className="text-white"><span className="text-4xl font-bold">{jogador.nome} </span> <br /> <span className="text-2xl">sua palavra é:</span></h2>
+          <p className="text-white text-xl mt-4">{conteudo}</p>
+          <button
+            className="bg-blue-400 mt-4 py-4 w-full text-xl font-bold text-white rounded-full hover:cursor-pointer hover:bg-blue-500"
+            onClick={() => {
+              setMostrandoCarta(false);
+              if (jogadorAtual + 1 < jogadores.length) {
+                setJogadorAtual(jogadorAtual + 1);
+              } else {
+                const jogadoresAtivos = jogadores.filter(j => !j.eliminado);
+                const civisOuUndercover = jogadoresAtivos.filter(j => j.classe !== "Mr. White");
 
-              const inicial = civisOuUndercover[Math.floor(Math.random() * civisOuUndercover.length)];
-              const indiceInicial = jogadoresAtivos.findIndex(j => j.id === inicial.id);
+                const inicial = civisOuUndercover[Math.floor(Math.random() * civisOuUndercover.length)];
+                const indiceInicial = jogadoresAtivos.findIndex(j => j.id === inicial.id);
 
-              const ordemCircular = [
-                ...jogadoresAtivos.slice(indiceInicial),
-                ...jogadoresAtivos.slice(0, indiceInicial)
-              ].map(j => j.id);
+                const ordemCircular = [
+                  ...jogadoresAtivos.slice(indiceInicial),
+                  ...jogadoresAtivos.slice(0, indiceInicial)
+                ].map(j => j.id);
 
-              setOrdemFala(ordemCircular);
-              setIndiceFala(0);
-              setFase("ordemFala");
+                setOrdemFala(ordemCircular);
+                setIndiceFala(0);
+                setFase("ordemFala");
 
-            }
-          }}
-        >
-          Próximo
-        </button>
+              }
+            }}
+          >
+            Próximo
+          </button>
+        </div>
       </div>
     );
   }
@@ -292,23 +333,29 @@ export default function App() {
     const id = ordemFala[indiceFala];
     const jogador = jogadores[id];
     return (
-      <div className="p-4">
-        <h2>Rodada {rodada}</h2>
-        <h3>Jogador da vez:</h3>
-        <p>{jogador.nome}, fale uma palavra relacionada.</p>
-        <button
-          onClick={() => {
-            if (indiceFala + 1 < ordemFala.length) {
-              setIndiceFala(indiceFala + 1);
-            } else {
-              setJogadorAtual(0);
-              setRodada(rodada + 1);
-              setFase("votacao");
-            }
-          }}
-        >
-          Próximo a falar
-        </button>
+      <div className="p-4 h-screen bg-[#121212] flex justify-center items-center">
+        <div>
+          <h2 className="text-white text-5xl">Rodada {rodada}</h2>
+          <h3 className="text-white text-3xl mt-4">Jogador da vez:</h3>
+          <div className="mt-4">
+            <strong className="text-white text-4xl mt-2">{jogador.nome}</strong>
+            <p className="text-white text-2xl">Fale uma palavra relacionada.</p>
+          </div>
+          <button
+            className="bg-blue-400 mt-10 py-4 w-full text-xl font-bold text-white rounded-full hover:cursor-pointer hover:bg-blue-500"
+            onClick={() => {
+              if (indiceFala + 1 < ordemFala.length) {
+                setIndiceFala(indiceFala + 1);
+              } else {
+                setJogadorAtual(0);
+                setRodada(rodada + 1);
+                setFase("votacao");
+              }
+            }}
+          >
+            Próximo a falar
+          </button>
+        </div>
       </div>
     );
   }
@@ -321,33 +368,45 @@ export default function App() {
     }
 
     return (
-      <div className="p-4">
-        <h2>{atual.nome}, em quem você vota?</h2>
-        {jogadores.map((j) =>
-          !j.eliminado && j.id !== atual.id ? (
-            <button key={j.id} onClick={() => votar(j.id)}>{j.nome}</button>
-          ) : null
-        )}
+      <div className="p-4 h-screen bg-[#121212] flex justify-center items-center">
+        <div>
+          <h2 className="text-white text-2xl"><strong className="text-4xl">{atual.nome}</strong>, em quem você vota?</h2>
+          <div className="mt-4 grid grid-cols-1 gap-4">
+            {jogadores.map((j) =>
+              !j.eliminado && j.id !== atual.id ? (
+                <button
+                  className="bg-blue-400 hover:bg-blue-500 p-2 rounded-full font-bold hover:cursor-pointer"
+                  key={j.id}
+                  onClick={() => votar(j.id)}>{j.nome}
+                </button>
+              ) : null
+            )}
+          </div>
+        </div>
       </div>
     );
   }
 
   if (fase === "resultado") {
     return (
-      <div className="p-4">
-        <h2>Resultado:</h2>
-        <p>{resultado.nome} foi eliminado. Ele era {resultado.classe}.</p>
-        <button onClick={() => {
-          const vivos = jogadores.filter(j => !j.eliminado);
-          const novaOrdem = [...vivos.map(j => j.id)];
-          const inicio = novaOrdem.shift();
-          novaOrdem.push(inicio);
-          setOrdemFala(novaOrdem);
-          setIndiceFala(0);
-          setFase("ordemFala");
-        }}>
-          Próxima rodada
-        </button>
+      <div className="p-4 h-screen flex justify-center items-center bg-[#121212]">
+        <div>
+          <h2 className="text-5xl text-white mb-6">Resultado:</h2>
+          <p className="text-3xl text-white"><strong>{resultado.nome}</strong> foi eliminado. Ele era {resultado.classe}.</p>
+          <button
+            className="bg-blue-400 mt-10 py-4 w-full text-xl font-bold text-white rounded-full hover:cursor-pointer hover:bg-blue-500"
+            onClick={() => {
+              const vivos = jogadores.filter(j => !j.eliminado);
+              const novaOrdem = [...vivos.map(j => j.id)];
+              const inicio = novaOrdem.shift();
+              novaOrdem.push(inicio);
+              setOrdemFala(novaOrdem);
+              setIndiceFala(0);
+              setFase("ordemFala");
+            }}>
+            Próxima rodada
+          </button>
+        </div>
       </div>
     );
   }
@@ -364,14 +423,21 @@ export default function App() {
 
   if (fase === "fim") {
     return (
-      <div className="p-4">
-        <h2>Fim de Jogo!</h2>
-        <p>{msgFinal}</p>
-        <ul>
-          {jogadores.map((j) => (
-            <li key={j.id}>{j.nome} - {j.classe} {j.eliminado ? "(eliminado)" : ""}</li>
-          ))}
-        </ul>
+      <div className="p-4 h-screen flex justify-center items-center bg-[#121212]">
+        <div className="border-2 border-white px-4 py-24">
+          <h2 className="text-5xl text-white">Fim de Jogo!</h2>
+          <p className="text-3xl mt-6 text-white">{msgFinal}</p>
+          <ul className="mt-6">
+            {jogadores.map((j) => (
+              <li
+                key={j.id}
+                className="text-2xl text-white"
+              >
+                <strong>{j.nome}</strong> - {j.classe} {j.eliminado ? "(eliminado)" : ""}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   }
