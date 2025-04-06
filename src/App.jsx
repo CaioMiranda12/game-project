@@ -71,6 +71,10 @@ export default function App() {
 
   const [nomeDigitado, setNomeDigitado] = useState("");
 
+  const [empate, setEmpate] = useState(false);
+  const [empateIds, setEmpateIds] = useState([]);
+  const [vencedores, setVencedores] = useState([]);
+
   useEffect(() => {
     const sala = localStorage.getItem("sala");
     const jogs = localStorage.getItem("jogadores");
@@ -150,15 +154,22 @@ export default function App() {
       }
     });
 
-    let maisVotado = null;
-    let votosMax = 0;
-    for (let id in contagem) {
-      if (contagem[id] > votosMax) {
-        votosMax = contagem[id];
-        maisVotado = parseInt(id);
-      }
+    const maxVotos = Math.max(...Object.values(contagem));
+    const empatados = Object.entries(contagem)
+      .filter(([_, votos]) => votos === maxVotos)
+      .map(([id]) => parseInt(id));
+
+    if (empatados.length > 1) {
+      const atualizados = jogadores.map(j => ({ ...j, voto: null }));
+      setJogadores(atualizados);
+      setEmpate(true);
+      setEmpateIds(empatados);
+      setJogadorAtual(0);
+      setFase("votacao");
+      return;
     }
 
+    const maisVotado = empatados[0];
     const atualizados = jogadores.map((j) => {
       if (j.id === maisVotado) return { ...j, eliminado: true };
       return j;
@@ -171,29 +182,52 @@ export default function App() {
     } else {
       checarFimDeJogo(atualizados);
     }
-  };
+  }
 
-  const checarFimDeJogo = (lista) => {
-    const vivos = lista.filter(j => !j.eliminado);
-    const temUndercover = vivos.some(j => j.classe === "Undercover");
-    const temMrWhite = vivos.some(j => j.classe === "Mr. White");
+  const checarFimDeJogo = (listaJogadores) => {
+    const vivos = listaJogadores.filter(j => !j.eliminado);
+    const civis = vivos.filter(j => j.classe === "Civil").length;
+    const undercovers = vivos.filter(j => j.classe === "Undercover").length;
+    const mrwhites = vivos.filter(j => j.classe === "Mr. White").length;
 
-    if (!temUndercover && !temMrWhite) {
-      setMsgFinal("Civis venceram!");
+    if (undercovers === 0 && mrwhites === 0) {
       setFase("fim");
-    } else if (vivos.length <= 2) {
-      if (temUndercover) {
-        setMsgFinal("Undercover venceu!");
-      } else if (temMrWhite) {
-        setMsgFinal("Mr. White venceu sobrevivendo!");
-      } else {
-        setMsgFinal("Fim de jogo!");
-      }
-      setFase("fim");
-    } else {
-      setFase("resultado");
+      setVencedores(vivos);
+      return;
     }
-  };
+
+    if (undercovers >= civis || mrwhites >= civis) {
+      setFase("fim");
+      setVencedores(vivos);
+      return;
+    }
+
+    setFase("descricao");
+    setJogadorAtual(0);
+  }
+
+  useEffect(() => {
+    const dados = localStorage.getItem("jogadores");
+    const faseSalva = localStorage.getItem("fase");
+    if (dados) {
+      setJogadores(JSON.parse(dados));
+    }
+    if (faseSalva) {
+      setFase(faseSalva);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (jogadores.length > 0) {
+      localStorage.setItem("jogadores", JSON.stringify(jogadores));
+    }
+  }, [jogadores]);
+
+  useEffect(() => {
+    if (fase) {
+      localStorage.setItem("fase", fase);
+    }
+  }, [fase]);
 
   const confirmarMrWhite = () => {
     if (mrWhiteChute.toLowerCase() === palavra.toLowerCase()) {
