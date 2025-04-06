@@ -3,7 +3,51 @@
 import { useEffect, useState } from "react";
 import { distribuirClasses } from './utils/distribuirClasses'
 
-const palavrasSecretas = ["gato", "cachorro", "carro", "praia"];
+// const palavrasSecretas = ["gato", "cachorro", "carro", "praia"];
+
+const bancoDePalavras = [
+  { civil: "maçã", undercover: "pera" },
+  { civil: "cachorro", undercover: "gato" },
+  { civil: "avião", undercover: "helicóptero" },
+  { civil: "praia", undercover: "piscina" },
+  { civil: "garfo", undercover: "colher" },
+  { civil: "carro", undercover: "moto" },
+  { civil: "futebol", undercover: "vôlei" },
+  { civil: "caneta", undercover: "lápis" },
+  { civil: "sol", undercover: "lua" },
+  { civil: "quadro", undercover: "espelho" },
+  { civil: "travesseiro", undercover: "almofada" },
+  { civil: "camisa", undercover: "blusa" },
+  { civil: "mochila", undercover: "bolsa" },
+  { civil: "janela", undercover: "porta" },
+  { civil: "refrigerante", undercover: "suco" },
+  { civil: "pizza", undercover: "hambúrguer" },
+  { civil: "chave", undercover: "controle" },
+  { civil: "óculos", undercover: "binóculo" },
+  { civil: "cama", undercover: "sofá" },
+  { civil: "escada", undercover: "elevador" },
+  { civil: "chuveiro", undercover: "banheira" },
+  { civil: "notebook", undercover: "tablet" },
+  { civil: "mouse", undercover: "teclado" },
+  { civil: "sapato", undercover: "chinelo" },
+  { civil: "microfone", undercover: "caixa de som" },
+  { civil: "abacaxi", undercover: "melancia" },
+  { civil: "escola", undercover: "faculdade" },
+  { civil: "médico", undercover: "enfermeiro" },
+  { civil: "martelo", undercover: "chave de fenda" },
+  { civil: "tesoura", undercover: "faca" },
+  { civil: "polícia", undercover: "bombeiro" },
+  { civil: "pintor", undercover: "escultor" },
+  { civil: "ferro", undercover: "aço" },
+  { civil: "leão", undercover: "tigre" },
+  { civil: "tênis", undercover: "futebol" },
+  { civil: "telefone", undercover: "rádio" },
+  { civil: "gelo", undercover: "neve" },
+  { civil: "estrela", undercover: "planeta" },
+  { civil: "cachoeira", undercover: "rio" },
+  { civil: "ilha", undercover: "continente" }
+];
+
 
 export default function App() {
   const [fase, setFase] = useState("config");
@@ -52,10 +96,9 @@ export default function App() {
 
 
   const gerarPalavras = () => {
-    const sorteada = palavrasSecretas[Math.floor(Math.random() * palavrasSecretas.length)];
-    const alternativa = sorteada + "a";
-    setPalavra(sorteada);
-    setPalavraUndercover(alternativa);
+    const sorteada = bancoDePalavras[Math.floor(Math.random() * bancoDePalavras.length)];
+    setPalavra(sorteada.civil);
+    setPalavraUndercover(sorteada.undercover);
   };
 
   const iniciarJogo = () => {
