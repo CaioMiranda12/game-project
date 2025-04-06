@@ -1,6 +1,7 @@
 // Estrutura base com funcionalidades completas do jogo Undercover com ordem de fala e distribuição dinâmica de classes
 
 import { useEffect, useState } from "react";
+import { distribuirClasses } from './utils/distribuirClasses'
 
 const palavrasSecretas = ["gato", "cachorro", "carro", "praia"];
 
@@ -19,9 +20,14 @@ export default function App() {
   const [mostrandoCarta, setMostrandoCarta] = useState(false);
   const [rodada, setRodada] = useState(1);
 
+  const [totalCivis, setTotalCivis] = useState(0);
+  const [totalUndercover, setTotalUndercover] = useState(0);
+  const [totalMrWhite, setTotalMrWhite] = useState(0);
+
   useEffect(() => {
     const sala = localStorage.getItem("sala");
     const jogs = localStorage.getItem("jogadores");
+
     if (sala && jogs) {
       setNumeroJogadores(parseInt(sala));
       setJogadores(JSON.parse(jogs));
@@ -34,6 +40,17 @@ export default function App() {
     }
   }, [jogadores, fase]);
 
+  useEffect(() => {
+    const { numCivis, numUndercover, numMrWhite } = distribuirClasses(numeroJogadores);
+    console.log({ numCivis, numUndercover, numMrWhite });
+
+    setTotalCivis(numCivis);
+    setTotalUndercover(numUndercover)
+    setTotalMrWhite(numMrWhite)
+  }, [numeroJogadores])
+
+
+
   const gerarPalavras = () => {
     const sorteada = palavrasSecretas[Math.floor(Math.random() * palavrasSecretas.length)];
     const alternativa = sorteada + "a";
@@ -41,36 +58,10 @@ export default function App() {
     setPalavraUndercover(alternativa);
   };
 
-  const distribuirClasses = (n) => {
-    let numMrWhite = 0;
-    let numUndercover = 0;
-
-    if (n >= 4 && n <= 6) {
-      numMrWhite = 1;
-      numUndercover = 1;
-    } else if (n >= 7 && n <= 8) {
-      numMrWhite = 1;
-      numUndercover = 2;
-    } else if (n >= 9 && n <= 10) {
-      numMrWhite = 1;
-      numUndercover = 3;
-    } else if (n > 10) {
-      numMrWhite = 2;
-      numUndercover = Math.floor(n / 4);
-    }
-
-    const numCivis = n - numMrWhite - numUndercover;
-    return [
-      ...Array(numUndercover).fill("Undercover"),
-      ...Array(numMrWhite).fill("Mr. White"),
-      ...Array(numCivis).fill("Civil"),
-    ].sort(() => 0.5 - Math.random());
-  };
-
   const iniciarJogo = () => {
     gerarPalavras();
     const classes = distribuirClasses(numeroJogadores);
-    const listaJogadores = classes.map((classe, i) => ({
+    const listaJogadores = classes.distribuicao.map((classe, i) => ({
       id: i,
       nome: "",
       classe,
@@ -183,6 +174,12 @@ export default function App() {
           onChange={(e) => setNumeroJogadores(parseInt(e.target.value))}
         />
         <button onClick={iniciarJogo}>Iniciar</button>
+
+        <ul>
+          <li>Civis: {totalCivis}</li>
+          <li>Undercovers: {totalUndercover}</li>
+          <li>MrWhites: {totalMrWhite}</li>
+        </ul>
       </div>
     );
   }
