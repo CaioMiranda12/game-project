@@ -413,10 +413,19 @@ export default function App() {
 
   if (fase === "mrwhite") {
     return (
-      <div className="p-4">
-        <h2>Mr. White, qual a palavra secreta?</h2>
-        <input type="text" onChange={(e) => setMrWhiteChute(e.target.value)} />
-        <button onClick={confirmarMrWhite}>Confirmar</button>
+      <div className="p-4 h-screen flex justify-center items-center bg-[#121212]">
+        <div>
+          <h2 className="text-white text-3xl mb-8">Mr. White, qual a palavra secreta?</h2>
+          <input
+            className="border-2 border-white py-3 px-2 w-full text-white text-xl rounded-full"
+            type="text"
+            onChange={(e) => setMrWhiteChute(e.target.value)}
+          />
+          <button
+            onClick={confirmarMrWhite}
+            className="bg-blue-400 mt-10 py-4 w-full text-xl font-bold text-white rounded-full hover:cursor-pointer hover:bg-blue-500"
+          >Confirmar</button>
+        </div>
       </div>
     );
   }
